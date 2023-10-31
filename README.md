@@ -1,4 +1,4 @@
 # RTM
-The official repository of Real Text Manipulation (RTM)
+The official repository of RTM
 
-Code and dataset will be released soon.
+The code and dataset will be released soon.
