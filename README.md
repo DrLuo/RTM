@@ -7,8 +7,8 @@ The RTM dataset consists of 9,000 text images in total, including 6,000 manually
 
 ## TODO
 - [x] Release dataset
-- [] Release evaluation code
-- [] Release model
+- [ ] Release evaluation code
+- [ ] Release model
 
 ## Citation
 Please cite the following paper when using the RTM dataset or this repo.
