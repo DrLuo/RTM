@@ -5,6 +5,26 @@ This is the official repository of paper ["Toward real text manipulation detecti
 
 The RTM dataset consists of 9,000 text images in total, including 6,000 manually manipulated text images and 3,000 authentic images. The dataset is available at [Google Drive](https://drive.google.com/file/d/11AHZ8ih_kDCFilGceevppcGkKR4vDJD2/view?usp=sharing).
 
+## Evaluation Tool
+
+Before running the srcipt, please make sure the prediction folder is renamed following the format:
+
+{MethodName}_mask
+
+For example: ascformer_mask
+
+```
+cd EvalRTM
+python run_eval.py --pred_dir ${PRED_FOLDER} --gt_dir ${RTM_GT_FOLDER}
+```
+We use pqdm to accelerate the evaluating process. The evaluation results will be saved in Json file and shown using PrettyTable.
+
+## ASCFormer
+
+To be released
+
+
+
 ## TODO
 - [x] Release dataset
 - [x] Release evaluation code

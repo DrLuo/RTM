@@ -299,8 +299,6 @@ class BinaryMetirc(object):
         # initial meter
         loc_meter = dict()  # pixel and instance
         cls_meter = dict()  # classification
-        ccf_meter = dict()  # classification using constraint f1
-
         pix_meter = dict()  # pixel level metric following semantic segmentation
         for k in tamper_classes:
             pix_meter[k] = dict(tp=0, tn=0, fp=0, fn=0)
@@ -310,7 +308,6 @@ class BinaryMetirc(object):
         for k in cate_mapper:
             loc_meter[cate_mapper[k]] = dict()
             cls_meter[cate_mapper[k]] = dict(t=0, tp=0, fp=0, fn=0, tn=0, num=0, f1=0, cf1=0)
-            ccf_meter[cate_mapper[k]] = dict(t=0, tp=0, fp=0, fn=0, tn=0, num=0, f1=0, cf1=0)
 
             for m in mode:
                 if m == 'iou' or m == 'f1':
@@ -348,18 +345,15 @@ class BinaryMetirc(object):
 
 
             cls_meter[name]['num'] += 1
-            ccf_meter[name]['num'] += 1
 
             if name == 'good':
                 if sample['score'] == 0:
                     cls_meter[name]['t'] += 1
-                    ccf_meter[name]['t'] += 1
 
             else:
                 if sample['score'] > 0:
                     cls_meter[name]['t'] += 1
-                if sample['iou'] > 0:
-                    ccf_meter[name]['t'] += 1
+
 
         for name in loc_meter:
             for m in mode:
@@ -383,24 +377,9 @@ class BinaryMetirc(object):
                 cls_meter['all']['tp'] += cls_meter[name]['t']
                 cls_meter['all']['fn'] += cls_meter[name]['num'] - cls_meter[name]['t']
 
-        for name in ccf_meter:
-            if name == 'all' or name == 'manual':
-                continue
-
-            ccf_meter['all']['num'] += ccf_meter[name]['num']
-            ccf_meter['all']['t'] += ccf_meter[name]['t']
-            if name != 'script' and name != 'good':
-                ccf_meter['manual']['num'] += ccf_meter[name]['num']
-                ccf_meter['manual']['t'] += ccf_meter[name]['t']
-            if name == 'good':
-                ccf_meter['all']['tn'] = ccf_meter[name]['t']
-                ccf_meter['all']['fp'] = ccf_meter[name]['num'] - ccf_meter[name]['t']
-            else:
-                ccf_meter['all']['tp'] += ccf_meter[name]['t']
-                ccf_meter['all']['fn'] += ccf_meter[name]['num'] - ccf_meter[name]['t']
 
         cls_meter['all']['f1'] = f_measure(cls_meter['all']['tp'], cls_meter['all']['fp'], cls_meter['all']['fn'])
-        ccf_meter['all']['f1'] = f_measure(ccf_meter['all']['tp'], ccf_meter['all']['fp'], ccf_meter['all']['fn'])
+
 
         # initial output
         proto = ['Cate']
@@ -409,34 +388,28 @@ class BinaryMetirc(object):
         if 'f1' in mode:
             proto.append('f1')
 
-        proto.extend(['Image f1', 'Const f1'])
+        proto.extend(['Image f1'])
 
 
         # show evaluation results
         tb = PrettyTable(proto)
         tb_pix = PrettyTable(['Cate', 'IoU', 'Precision', 'Recall', 'F1'])
-        tb_img = PrettyTable(['Cate', 'Max Hit', 'nRate', 'Const Hit', 'cRate'])
+        tb_img = PrettyTable(['Cate', 'Max Hit', 'nRate'])
 
 
         tb.title = 'Main Metric'
         tb_img.title = 'Image-level Acc'
-        # tb_ins.title = 'Instace-level Details'
         tb_pix.title = 'Pixel-level'
 
         for name in loc_meter:
             tb.add_row([
                 name,
                 '{:.2f}%'.format(loc_meter[name]['avg_iou'] * 100), '{:.2f}%'.format(loc_meter[name]['avg_f1'] * 100),
-                '{:.2f}%'.format(cls_meter[name]['f1'] * 100) if name == 'all' else '-',
-                '{:.2f}%'.format(ccf_meter[name]['f1'] * 100) if name == 'all' else '-',
-                '{:.2f}%'.format(loc_meter[name]['dqg'] * 100), '{:.2f}%'.format(loc_meter[name]['dqp'] * 100),
-                '{:.2f}%'.format(loc_meter[name]['mq'] * 100)])
+                '{:.2f}%'.format(cls_meter[name]['f1'] * 100) if name == 'all' else '-',])
 
             tb_img.add_row([name,
                             '{}/{}'.format(cls_meter[name]['t'], cls_meter[name]['num']),
-                            '{:.2f}%'.format(cls_meter[name]['t'] / cls_meter[name]['num'] * 100),
-                            '{}/{}'.format(ccf_meter[name]['t'], ccf_meter[name]['num']),
-                            '{:.2f}%'.format(ccf_meter[name]['t'] / ccf_meter[name]['num'] * 100)])
+                            '{:.2f}%'.format(cls_meter[name]['t'] / cls_meter[name]['num'] * 100)])
 
 
         # additional metric
@@ -447,7 +420,7 @@ class BinaryMetirc(object):
                     '{:.2f}%'.format(
                         f_measure(self.all_confusion_matrix['tamp']['tp'], self.all_confusion_matrix['tamp']['fp'],
                                   self.all_confusion_matrix['tamp']['fn']) * 100),
-                    '-', '-', '-', '-', '-'])
+                    '-'])
         tb.add_row(['m_all',
                     '{:.2f}%'.format(
                         iou_meaure(self.all_confusion_matrix['all']['tp'], self.all_confusion_matrix['all']['fp'],
@@ -455,27 +428,19 @@ class BinaryMetirc(object):
                     '{:.2f}%'.format(
                         f_measure(self.all_confusion_matrix['all']['tp'], self.all_confusion_matrix['all']['fp'],
                                   self.all_confusion_matrix['all']['fn']) * 100),
-                    '-', '-', '-', '-', '-'])
+                    '-'])
 
         tb_img.add_row(['P&R',
                         '{:.2f}%'.format(
                             cls_meter['all']['tp'] / (cls_meter['all']['tp'] + cls_meter['all']['fp'] + 1e-12) * 100),
                         '{:.2f}%'.format(
-                            cls_meter['all']['tp'] / (cls_meter['all']['tp'] + cls_meter['all']['fn'] + 1e-12) * 100),
-                        '{:.2f}%'.format(
-                            ccf_meter['all']['tp'] / (ccf_meter['all']['tp'] + ccf_meter['all']['fp'] + 1e-12) * 100),
-                        '{:.2f}%'.format(
-                            ccf_meter['all']['tp'] / (ccf_meter['all']['tp'] + ccf_meter['all']['fn'] + 1e-12) * 100)])
+                            cls_meter['all']['tp'] / (cls_meter['all']['tp'] + cls_meter['all']['fn'] + 1e-12) * 100)])
 
         tb_img.add_row(['Acc',
                         '-',
                         '{:.2f}%'.format(
                             accuracy(cls_meter['all']['tp'], cls_meter['all']['fp'], cls_meter['all']['fn'],
-                                     cls_meter['all']['tn']) * 100),
-                        '-',
-                        '{:.2f}%'.format(
-                            accuracy(ccf_meter['all']['tp'], ccf_meter['all']['fp'], ccf_meter['all']['fn'],
-                                     ccf_meter['all']['tn']) * 100)])
+                                     cls_meter['all']['tn']) * 100)])
 
         for name in pix_meter:
             pix_results = evaluate_matrix(pix_meter[name])
@@ -532,7 +497,7 @@ if __name__ == "__main__":
     method_name = method_name.split('_')[0]
 
 
-    evaluation = BinaryMetirc(method_name, gt_dir, pred_dir, use_crop=False, mode=mode)
+    evaluation = BinaryMetirc(method_name, gt_dir, pred_dir, mode=mode)
 
     print("Evaluating [ {} ]".format(evaluation.method))
     evaluation.eval_full()
