@@ -61,6 +61,7 @@ Organize the files as follows
          └  test.txt
 ```
 
+We leverage the tampered images in the test set for validation during training.
 
 ### Training
 
@@ -116,11 +117,6 @@ After obtaining the binary masks, please use the evaluation tool of RTM for more
 |-|-|-|-|-|-|-|-|-|-|
 |ASC-Former|18.57|32.79|18.89|16.06|27.63|19.35|21.57|19.71|[model](https://drive.google.com/file/d/1xltdrDhqeyDh3TnynXDn0eVZnAKtnlKx/view?usp=sharing)|
 
-
-## TODO
-- [x] Release dataset
-- [x] Release evaluation code
-- [ ] Release model (On going)
 
 ## Citation
 Please cite the following paper when using the RTM dataset or this repo.
