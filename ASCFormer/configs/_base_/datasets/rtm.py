@@ -1,6 +1,6 @@
 # dataset settings
 dataset_type = 'TamperedTextDataset'
-data_root = 'data/ttd/RealTextMan/'
+data_root = './data/ttd/RealTextMan/'
 crop_size = (512, 512)
 train_pipeline = [
     dict(type='LoadImageFromFile'),

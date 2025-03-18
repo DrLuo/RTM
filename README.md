@@ -31,7 +31,7 @@ Python 3.8 + PyTorch 2.0.0 + CUDA 11.8 + mmsegmentation (1.0.0rc6)
 ```shell
 conda create --name rtm python=3.8 -y
 conda activate rtm
-conda install pytorch==2.0.0 torchvision==0.15.0 torchaudio==2.0.0 pytorch-cuda=11.8 -c pytorch -c nvidia
+pip install torch==2.0.0 torchvision==0.15.1 torchaudio==2.0.1 --index-url https://download.pytorch.org/whl/cu118
 
 pip install -U openmim
 mim install "mmengine==0.7.0"
@@ -44,7 +44,7 @@ pip install -r requirements.txt
 pip install -v -e .
 ```
 
-Note that the working directory is `ASCFormer`
+**Note that the working directory is `ASCFormer`**
 
 ### Prepare dataset
 
@@ -66,6 +66,12 @@ Organize the files as follows
 We leverage the tampered images in the test set for validation during training.
 
 ### Training
+
+Make sure the working directory is under `ASCFormer`
+
+```shell
+cd ASCFormer
+```
 
 For distributed training on multiple GPUs, please use
 
