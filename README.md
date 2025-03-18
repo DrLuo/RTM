@@ -44,9 +44,11 @@ pip install -r requirements.txt
 pip install -v -e .
 ```
 
+Note that the working directory is `ASCFormer`
+
 ### Prepare dataset
 
-Place the RTM dataset at `./data/ttd/RealTextMan` 
+Place the RTM dataset at `ASCFormer/data/ttd/RealTextMan` 
 
 Organize the files as follows
 
@@ -80,7 +82,7 @@ python ./tools/train.py ${CONFIG_FILE} ${GPU_NUM}
 For example, we use this script to train the model:
 
 ```shell
-bash tools/dist_train.sh configs/ascformer_rtm/ascformer_model.pth 2
+bash tools/dist_train.sh configs/ascformer/ascformer_rtm.py 2
 ```
 
 

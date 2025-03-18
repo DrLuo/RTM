@@ -1,9 +1,9 @@
-opencv-python
-einops
-lmdb
-natten
+opencv-python==4.5.5
+einops==0.6.1
+lmdb==1.4.1
+natten==0.14.6
 jpegio
-timm
-lightly
-tensorboard
-albumentations
+timm==0.4.12
+lightly==1.4.5
+tensorboard==2.12.0
+albumentations==1.3.0
