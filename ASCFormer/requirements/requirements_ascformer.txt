@@ -1,4 +1,4 @@
-opencv-python==4.5.5
+opencv-python==4.5.2.54
 einops==0.6.1
 lmdb==1.4.1
 natten==0.14.6
